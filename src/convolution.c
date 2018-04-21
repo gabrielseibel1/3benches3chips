@@ -2,14 +2,29 @@
 #include <memory.h>
 #include <stdlib.h>
 
+/**
+ * Convolves two signals and writes output to a third array
+ */
 void convolve(double *signal1, double *signal2, double *out);
 
+/**
+ * Returns the value a function f at time t
+ */
 double f(double t);
 
+/**
+ * Returns the value of a function g at time t
+ */
 double g(double t);
 
+/**
+ * Builds an array of points with the function f
+ */
 void *build_f_array(double *signal, size_t size);
 
+/**
+ * Builds an array of points with the function g
+ */
 void *build_g_array(double *signal, size_t size);
 
 void print_array(double array[], size_t size, int id);
@@ -73,22 +88,22 @@ void build_empty_array(double *signal, size_t size) {
   memset(signal, 0, size);
 }
 
-void *build_g_array(double *signal, size_t size) {
-  for (int i = 0; i < size; ++i) {
-    signal[i] = g(i);
-  }
-}
-
 void *build_f_array(double *signal, size_t size) {
   for (int i = 0; i < size; ++i) {
     signal[i] = f(i);
   }
 }
 
+void *build_g_array(double *signal, size_t size) {
+  for (int i = 0; i < size; ++i) {
+    signal[i] = g(i);
+  }
+}
+
 double f(double t) {
-  return t * t; /* signal value at time i */
+  return t * t;
 }
 
 double g(double t) {
-  return t; /* signal value at time i */
+  return t;
 }
