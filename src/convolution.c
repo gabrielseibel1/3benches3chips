@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <memory.h>
-
-#define SIZE1 6
-#define SIZE2 3
+#include <stdlib.h>
 
 void convolve(double *signal1, double *signal2, double *out);
 
@@ -12,35 +10,52 @@ double g(double t);
 
 void *build_f_array(double *signal, size_t size);
 
-void * build_g_array(double *signal, size_t size);
+void *build_g_array(double *signal, size_t size);
 
-void print_array(double array[], size_t size, int id) ;
+void print_array(double array[], size_t size, int id);
 
-void build_empty_array(double *signal, size_t size) ;
+void build_empty_array(double *signal, size_t size);
 
-size_t conv_size = (SIZE1 < SIZE2 ? SIZE2 : SIZE1);
+void parse_signal_sizes(int argc, char *argv[]);
 
-int main() {
-  double signal1[SIZE1], signal2[SIZE2], convolution[conv_size];
+size_t sig1_size;
+size_t sig2_size;
+size_t conv_size;
 
-  build_f_array(signal1, SIZE1);
-  build_g_array(signal2, SIZE2);
+int main(int argc, char *argv[]) {
+  parse_signal_sizes(argc, argv);
+
+  double signal1[sig1_size], signal2[sig2_size], convolution[conv_size];
+
+  build_f_array(signal1, sig1_size);
+  build_g_array(signal2, sig2_size);
   build_empty_array(convolution, conv_size);
 
-  print_array(signal1, SIZE1, 1);
-  print_array(signal2, SIZE2, 2);
+  print_array(signal1, sig1_size, 1 /*id for signal1*/);
+  print_array(signal2, sig2_size, 2 /*id for signal2*/);
 
   convolve(signal1, signal2, convolution);
 
-  print_array(convolution, conv_size, 3);
+  print_array(convolution, conv_size, 3 /*id for conv*/);
 
   return 0;
 }
 
+void parse_signal_sizes(int argc, char *argv[]) {
+  if (argc != 3) {
+    fprintf(stderr, "Expected args: size_of_signal_1 size_of_signal_2\n");
+    exit(EXIT_FAILURE);
+  }
+
+  sig1_size = (size_t) atoi(argv[1]);
+  sig2_size = (size_t) atoi(argv[2]);
+  conv_size = (sig1_size < sig2_size ? sig2_size : sig1_size); //pick the largest size
+}
+
 void convolve(double *signal1, double *signal2, double *out) {
-  for (size_t i = 0; i < conv_size; ++i) { //iterate over elements of conv
+  for (size_t i = 0; i < conv_size; ++i) { //iterate over elements of conv array
     out[i] = 0;
-    for (size_t j = 0; j < i && j < SIZE1; ++j) {
+    for (size_t j = 0; j < i && j < sig1_size; ++j) { //accumulate to get integral at each point
       out[i] += signal1[j] * signal2[i - j];
     }
   }
@@ -71,7 +86,7 @@ void *build_f_array(double *signal, size_t size) {
 }
 
 double f(double t) {
-  return t*t; /* signal value at time i */
+  return t * t; /* signal value at time i */
 }
 
 double g(double t) {
