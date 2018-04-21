@@ -3,4 +3,4 @@ project(benches C)
 
 set(CMAKE_C_STANDARD 99)
 
-add_executable(convolution convolution.c)
+add_executable(convolution src/convolution.c)
