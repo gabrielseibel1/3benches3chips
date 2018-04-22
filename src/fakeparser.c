@@ -1,57 +1,115 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
-#define MAX 35000
 
-int main()
-{
-   int vetor[MAX];
-   int aux[MAX];
-   int i, j;
-   float a = 2, b = 3;
+#define SIZE_OF_WORD 4
 
-   srand(time(NULL));
+/**
+ * Gets number of word to parse from program arguments
+ */
+size_t get_n_words_in_input(int argc, char **argv);
 
-   for (i=0; i < MAX; i++)
-     {
-           vetor[i] = (rand() % 5);
-           //printf ("%d" , vetor[i]);
-           //printf("%s\n", "\n");
-     }
+/**
+ * Creates a random collection of words that are acceptable by the parser
+ */
+char *build_input(size_t n_chars);
 
-    for (i=0; i < MAX; i++){
-     switch (vetor[i]) {
-       case 0:
-          vetor[i] = a + b;
-          //printf ("%d ", vetor[i]);
-          //printf ("%s", "\n");
-          break;
-       case 1:
-          vetor[i] = a - b;
-          //printf ("%d ", vetor[i]);
-          //printf ("%s", "\n");
-          break;
-       case 2:
-          vetor[i] = a * b;
-          //printf ("%d ", vetor[i]);
-          //printf ("%s", "\n");
-          break;
-       case 3:
-          vetor[i] = a / b;
-          //printf ("%d ", vetor[i]);
-          //printf ("%s", "\n");
-          break;
-       case 4:
-          for(j=0; j < vetor[i]; j++){
-            aux[j] = vetor[i];
-            //printf ("%d ", aux[j]);
-            //printf ("%s", "\n");
-          }
-          break;
-       default:
-          //printf("%s\n", "ACAbou");
-          break;
-     }
+/**
+ * Creates random word acceptable by the parser
+ * RegEx would look like: [a|b][c|d][e|f][g|h]
+ * E.g "aceh", "bcfg" etc.
+ */
+char *get_random_word();
+
+/**
+ * Parses an input that has word like [a|b][c|d][e|f][g|h] and spaces
+ */
+void parse_input(char* input, size_t n_chars);
+
+void main(int argc, char *argv[]) {
+  srand((unsigned int) time(NULL));
+
+  size_t n_words = get_n_words_in_input(argc, argv);
+  size_t n_chars = n_words * SIZE_OF_WORD + n_words /*spaces and \0*/;
+  char *input = build_input(n_chars);
+
+  printf("Parsing %ld words of length %d ...\n", (long) n_words, SIZE_OF_WORD);
+  printf("Input: %s\n", input);
+  parse_input(input, n_words * SIZE_OF_WORD);
+  printf("Parsing completed successfully!\n");
 }
-   return 0;
+
+size_t get_n_words_in_input(int argc, char **argv) {
+  if (argc != 2) {
+    fprintf(stderr, "Expected args: n_words_to_parse\n");
+    exit(EXIT_FAILURE);
+  }
+
+  return (size_t) atoi(argv[1]);
+}
+
+char *build_input(size_t n_chars) {
+  char *input = (char *) malloc(n_chars * sizeof(char));
+
+  for (int i = 0; i < n_chars; i += SIZE_OF_WORD + 1) {
+    if (i + SIZE_OF_WORD + 1 < n_chars)
+      sprintf(input + i, "%s ", get_random_word());
+    else
+      sprintf(input + i, "%s\0", get_random_word());
+  }
+
+  return input;
+}
+
+char *get_random_word() {
+  //create words like [a|b][c|d][e|f][g|h]
+  switch (rand() % 16) {
+    default:
+    case 0:   return "aceg";
+    case 1:   return "aceh";
+    case 2:   return "acfg";
+    case 3:   return "acfh";
+    case 4:   return "adeg";
+    case 5:   return "adeh";
+    case 6:   return "adfg"; //Dig in the dancing queen
+    case 7:   return "adfh";
+    case 8:   return "bceg";
+    case 9:   return "bceh";
+    case 10:  return "bcfg";
+    case 11:  return "bcfh";
+    case 12:  return "bdeg";
+    case 13:  return "bdeh";
+    case 14:  return "bdfg";
+    case 15:  return "bdfh";
+  }
+}
+
+void parse_input(char* input, size_t n_chars) {
+  int state = 0;
+  for (int i = 0; i < n_chars; ++i) {
+    switch (state) {
+      default:
+      case 0: //first letter of a word
+        if (input[i] == 'a' || input[i] == 'b') state = 1;
+        else exit(EXIT_FAILURE);
+        break;
+      case 1: //second letter of a word
+        if (input[i] == 'c' || input[i] == 'd') state = 2;
+        else exit(EXIT_FAILURE);
+        break;
+      case 2: //third letter of a word
+        if (input[i] == 'e' || input[i] == 'f') state = 3;
+        else exit(EXIT_FAILURE);
+        break;
+      case 3: //forth letter of a word
+        if (input[i] == 'g' || input[i] == 'h') state = 4;
+        else exit(EXIT_FAILURE);
+        break;
+      case 4: //expects space character
+        if (input[i] == ' ') state = 0;
+        else if (input[i] == '\0') return;
+        else exit(EXIT_FAILURE);
+        break;
+    }
+  }
 }
