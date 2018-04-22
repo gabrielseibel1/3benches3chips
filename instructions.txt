@@ -1,0 +1,12 @@
+convolution:
+gcc convolution.c -o convolution
+./convolution <size_signal1> <size_signal2>
+
+fakeparser:
+gcc fakeparser.c -o fakeparser
+./fakeparser <n_words>
+
+kmeans:
+gcc -fopenmp kmeans.c -o kmeans
+./kmeans <n_objects> <n_attributes> <k_clusters> <n_threads>
+e.g. "./knmeans 10000 10 2 1"
