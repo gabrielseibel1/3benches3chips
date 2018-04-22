@@ -46,12 +46,14 @@ int main(int argc, char *argv[]) {
   build_g_array(signal2, sig2_size);
   build_empty_array(convolution, conv_size);
 
-  print_array(signal1, sig1_size, 1 /*id for signal1*/);
-  print_array(signal2, sig2_size, 2 /*id for signal2*/);
+  //print_array(signal1, sig1_size, 1 /*id for signal1*/);
+  //print_array(signal2, sig2_size, 2 /*id for signal2*/);
 
   convolve(signal1, signal2, convolution);
 
-  print_array(convolution, conv_size, 3 /*id for conv*/);
+  //print_array(convolution, conv_size, 3 /*id for conv*/);
+
+  printf("Convolved an array of size %d and an array of size %d successfully.\n", sig1_size, sig2_size);
 
   return 0;
 }

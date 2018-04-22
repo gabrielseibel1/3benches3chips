@@ -33,10 +33,10 @@ void main(int argc, char *argv[]) {
   size_t n_chars = n_words * SIZE_OF_WORD + n_words /*spaces and \0*/;
   char *input = build_input(n_chars);
 
-  printf("Parsing %ld words of length %d ...\n", (long) n_words, SIZE_OF_WORD);
-  printf("Input: %s\n", input);
+  //printf("Input: %s\n", input);
   parse_input(input, n_words * SIZE_OF_WORD);
-  printf("Parsing completed successfully!\n");
+  printf("Parsed %ld words of length %d successfully.\n", (long) n_words, SIZE_OF_WORD);
+
 }
 
 size_t get_n_words_in_input(int argc, char **argv) {
