@@ -73,7 +73,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <omp.h>
 
 #ifndef FLT_MAX
 #define FLT_MAX 3.40282347e+38
@@ -94,22 +93,20 @@ int main(int argc, char **argv) {
   float *buf;
   float **attributes;
   float **cluster_centres = NULL;
-  int i, j;
+  int i;
 
   int numAttributes;
   int numObjects;
   float threshold = 0.001;
-  double timing;
 
-  if (argc != 5) {
-    fprintf(stderr, "Expected 6 parameters: n_objs n_features k_clusters n_threads\n");
+  if (argc != 4) {
+    fprintf(stderr, "Expected 3 parameters: n_objs n_features k_clusters\n");
     exit(EXIT_FAILURE);
   }
 
   numObjects = atoi(argv[1]);
   numAttributes = atoi(argv[2]);
   numClusters = atoi(argv[3]);
-  num_omp_threads = atoi(argv[4]);
 
   /* allocate space for attributes[] and read attributes of all objects */
   buf = (float *) malloc(numObjects * numAttributes * sizeof(float));
@@ -124,7 +121,6 @@ int main(int argc, char **argv) {
   }
   memcpy(attributes[0], buf, numObjects * numAttributes * sizeof(float));
 
-  timing = omp_get_wtime();
   cluster_centres = NULL;
   cluster(numObjects,
           numAttributes,
@@ -133,11 +129,9 @@ int main(int argc, char **argv) {
           threshold,
           &cluster_centres
   );
-  timing = omp_get_wtime() - timing;
 
 
-  printf("KMEANS: %d objects - %d attributes - %d (k) clusters - %d threads - %f seconds", numObjects, numAttributes,
-         numClusters, num_omp_threads, timing);
+  printf("KMEANS: %d objects - %d attributes - %d (k) clusters\n", numObjects, numAttributes, numClusters);
 
   /*printf("Cluster Centers Output\n");
   printf("The first number is cluster number and the following data is atrribute value\n");
@@ -289,35 +283,25 @@ float **kmeans_clustering(float **feature,    /* in: [npoints][nfeatures] */
   //printf("num of threads = %d\n", num_omp_threads);
   do {
     delta = 0.0;
-    omp_set_num_threads(num_omp_threads);
-#pragma omp parallel \
-                shared(feature, clusters, membership, partial_new_centers, partial_new_centers_len)
-    {
-      int tid = omp_get_thread_num();
-#pragma omp for \
-                        private(i, j, index) \
-                        firstprivate(npoints, nclusters, nfeatures) \
-                        schedule(static) \
-                        reduction(+:delta)
-      for (i = 0; i < npoints; i++) {
-        /* find the index of nestest cluster centers */
-        index = find_nearest_point(feature[i],
-                                   nfeatures,
-                                   clusters,
-                                   nclusters);
-        /* if membership changes, increase delta by 1 */
-        if (membership[i] != index) delta += 1.0;
+    int tid = 0;
+    for (i = 0; i < npoints; i++) {
+      /* find the index of nestest cluster centers */
+      index = find_nearest_point(feature[i],
+                                 nfeatures,
+                                 clusters,
+                                 nclusters);
+      /* if membership changes, increase delta by 1 */
+      if (membership[i] != index) delta += 1.0;
 
-        /* assign the membership to object i */
-        membership[i] = index;
+      /* assign the membership to object i */
+      membership[i] = index;
 
-        /* update new cluster centers : sum of all objects located
-         within */
-        partial_new_centers_len[tid][index]++;
-        for (j = 0; j < nfeatures; j++)
-          partial_new_centers[tid][index][j] += feature[i][j];
-      }
-    } /* end of #pragma omp parallel */
+      /* update new cluster centers : sum of all objects located
+       within */
+      partial_new_centers_len[tid][index]++;
+      for (j = 0; j < nfeatures; j++)
+        partial_new_centers[tid][index][j] += feature[i][j];
+    }
 
     /* let the main thread perform the array reduction */
     for (i = 0; i < nclusters; i++) {

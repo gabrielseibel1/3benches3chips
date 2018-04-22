@@ -7,6 +7,6 @@ gcc fakeparser.c -o fakeparser
 ./fakeparser <n_words>
 
 kmeans:
-gcc -fopenmp kmeans.c -o kmeans
+gcc kmeans.c -o kmeans
 ./kmeans <n_objects> <n_attributes> <k_clusters> <n_threads>
 e.g. "./kmeans 10000 10 2 1"
