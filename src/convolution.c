@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <memory.h>
 #include <stdlib.h>
 
 /**
@@ -44,7 +43,6 @@ int main(int argc, char *argv[]) {
 
   build_f_array(signal1, sig1_size);
   build_g_array(signal2, sig2_size);
-  build_empty_array(convolution, conv_size);
 
   //print_array(signal1, sig1_size, 1 /*id for signal1*/);
   //print_array(signal2, sig2_size, 2 /*id for signal2*/);
@@ -84,10 +82,6 @@ void print_array(double array[], size_t size, int id) {
     printf(" %lf%s", array[i], (i + 1 < size) ? "," : "");
   }
   printf(" }\n");
-}
-
-void build_empty_array(double *signal, size_t size) {
-  memset(signal, 0, size);
 }
 
 void *build_f_array(double *signal, size_t size) {
