@@ -1,15 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <fcntl.h>
-#include <unistd.h>
 
 #ifndef FLT_MAX
 #define FLT_MAX 3.40282347e+38
 #endif
 
-#define N_OBJ 100000
-#define N_ATTR 5
+#define N_OBJ 5
+#define N_ATTR 2
 #define K 2
 #define N_THREADS 1
 
@@ -20,9 +17,9 @@ float euclid_dist_2(float *pt1,
                     float *pt2,
                     int numdims) ;
 
-int main(int argc, char *argv[]) {
+int main() {
   float points[N_OBJ][N_ATTR], delta;
-  int i, j, k, n = 0, index, loop = 0;
+  int i, j, k, n = 0, index, loop = 0, tid = 0;
   float threshold = 0.001;
 
   /* perform regular Kmeans */
@@ -59,7 +56,7 @@ int main(int argc, char *argv[]) {
 
   do {
     delta = 0.0;
-    int tid = 0;
+    tid = 0;
     for (i = 0; i < N_OBJ; i++) {
       /* find the index of nestest cluster centers */
       index = find_nearest_point(points[i],
@@ -141,7 +138,6 @@ int find_nearest_point(float *pt,          /* [N_ATTR] */
 /**
  * multi-dimensional spatial Euclid distance square
  */
-__inline
 float euclid_dist_2(float *pt1,
                     float *pt2,
                     int numdims) {
