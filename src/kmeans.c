@@ -93,7 +93,7 @@ int main(int argc, char **argv) {
   float *buf;
   float **attributes;
   float **cluster_centres = NULL;
-  int i;
+  int i, j;
 
   int numAttributes;
   int numObjects;
@@ -115,7 +115,7 @@ int main(int argc, char **argv) {
   for (i = 1; i < numObjects; i++)
     attributes[i] = attributes[i - 1] + numAttributes;
 
-  srand((unsigned int) time(NULL));
+  srand(7/*(unsigned int) time(NULL)*/);
   for (int i = 0; i < numObjects * numAttributes; ++i) {
     buf[i] = rand();
   }
@@ -133,7 +133,7 @@ int main(int argc, char **argv) {
 
   printf("KMEANS: %d objects - %d attributes - %d (k) clusters\n", numObjects, numAttributes, numClusters);
 
-  /*printf("Cluster Centers Output\n");
+  printf("Cluster Centers Output\n");
   printf("The first number is cluster number and the following data is atrribute value\n");
   printf("=============================================================================\n\n");
 
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     for (j = 0; j < numAttributes; j++)
       printf("%.2f ", cluster_centres[i][j]);
     printf("\n\n");
-  }*/
+  }
 
   free(attributes);
   free(cluster_centres[0]);
